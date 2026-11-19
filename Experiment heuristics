@@ -1,0 +1,69 @@
+import heapq
+
+# graph at ang cost sa each path
+graph = {
+    'A': {'B': 2.5, 'C': 3},
+    'B': {'A': 2.5, 'D': 3, 'E': 3},
+    'C': {'A': 3, 'E': 3, 'F': 4},
+    'D': {'B': 3, 'E': 2, 'G': 4},
+    'E': {'B': 3, 'C': 3, 'D': 2, 'G': 3},
+    'F': {'C': 4, 'G': 3},
+    'G': {'D': 4, 'E': 3, 'F': 3},
+}
+
+# diff heuristics na (distance ng node papunta sa goal G)
+heuristic1 = {'A': 6, 'B': 4.1, 'C': 4.1, 'D': 2.8, 'E': 2, 'F': 2.8, 'G': 0}   # accurate
+heuristic2 = {'A': 2, 'B': 1, 'C': 1, 'D': 1, 'E': 1, 'F': 1, 'G': 0}           # less accurate
+heuristic3 = {'A': 6, 'B': 20, 'C': 4.1, 'D': 2.8, 'E': 2, 'F': 2.8, 'G': 0}    # sobra ang tantiya sa B
+
+def a_star(start, goal, heuristic):
+    # dito ibutang ang list sa nodes na i-check
+    open_list = [(heuristic[start], start)]
+
+    # cost galing sa start node
+    g_cost = {start: 0}
+
+    # count sa nodes nga na-explore
+    explored = 0
+
+    # mga nodes na na-explore na
+    visited = set()
+
+    while open_list:
+        # kunin ang node na pinakamababa ang f(n) cost
+        current_f, current = heapq.heappop(open_list)
+
+        if current in visited:
+            continue
+        visited.add(current)
+
+        # add sa count sa explored nodes
+        explored += 1
+
+        # mag-stop once ma-reach ang goal
+        if current == goal:
+            return g_cost[current], explored
+
+        # i-check lahat ng nodes na connected
+        for neighbor, cost in graph[current].items():
+            # i-calculate ang actual cost galing sa start papunta sa neighbor
+            new_g = g_cost[current] + cost
+
+            if neighbor not in g_cost or new_g < g_cost[neighbor]:
+                g_cost[neighbor] = new_g
+
+                # i-calculate ang f(n) = g(n) + h(n)
+                f_cost = new_g + heuristic[neighbor]
+
+                # i-add ang next node sa list
+                heapq.heappush(open_list, (f_cost, neighbor))
+
+# display result
+for name, h in [('Heuristic 1', heuristic1), ('Heuristic 2', heuristic2), ('Heuristic 3', heuristic3)]:
+    result, explored = a_star('A', 'G', h)
+    print(name)
+    print("Shortest path cost:", result)
+    print("Nodes explored:", explored)
+    print()
+
+    
