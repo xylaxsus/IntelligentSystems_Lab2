@@ -1,0 +1,46 @@
+import matplotlib.pyplot as plt
+
+# Position sa each node
+positions = {
+    'A': (0, 0),
+    'B': (2, 1),
+    'C': (2, -1),
+    'D': (4, 2),
+    'E': (4, 0),
+    'F': (4, -2),
+    'G': (6, 0),
+}
+
+# Mga connections at ang cost ng bawat isa
+connections = [
+    ('A', 'B', 2.5), ('A', 'C', 3), ('B', 'D', 3), ('B', 'E', 3), ('C', 'E', 3),
+    ('C', 'F', 4), ('D', 'E', 2), ('D', 'G', 4), ('E', 'G', 3), ('F', 'G', 3),
+]
+
+# Resulta galing sa A* (Step 3)
+explored = ['A', 'B', 'C', 'E', 'D', 'G']    # mga nodes nga na-explore
+path = ['A', 'B', 'E', 'G']                  # ang final shortest path
+
+# pag draw sa connections at i show ang cost
+for node1, node2, cost in connections:
+    x1, y1 = positions[node1]
+    x2, y2 = positions[node2]
+    plt.plot([x1, x2], [y1, y2], color='gray')
+    plt.text((x1 + x2) / 2, (y1 + y2) / 2 + 0.1, str(cost))
+
+# ang final shortest path (pula)
+for node1, node2 in zip(path, path[1:]):
+    x1, y1 = positions[node1]
+    x2, y2 = positions[node2]
+    plt.plot([x1, x2], [y1, y2], color='red', linewidth=4)
+
+# pag draw sa nodes (orange = na-explore, blue = hindi na-explore)
+for node, (x, y) in positions.items():
+    color = 'orange' if node in explored else 'lightblue'
+    plt.scatter(x, y, s=1000, color=color)
+    plt.text(x, y, node, ha='center', va='center')
+
+plt.title("A* Search Algorithm")
+plt.axis('off')
+plt.show()
+
