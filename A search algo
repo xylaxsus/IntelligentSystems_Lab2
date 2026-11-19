@@ -1,0 +1,72 @@
+import heapq
+import math
+
+# Posisyon (x, y) ng bawat node; gagamitin sa heuristic at sa plot mamaya
+positions = {
+    'A': (0, 0),
+    'B': (2, 1),
+    'C': (2, -1),
+    'D': (4, 2),
+    'E': (4, 0),
+    'F': (4, -2),
+    'G': (6, 0),
+}
+
+# Weighted, undirected edges: node -> {neighbor: cost}
+graph = {
+    'A': {'B': 2.5, 'C': 3},
+    'B': {'A': 2.5, 'D': 3, 'E': 3},
+    'C': {'A': 3, 'E': 3, 'F': 4},
+    'D': {'B': 3, 'E': 2, 'G': 4},
+    'E': {'B': 3, 'C': 3, 'D': 2, 'G': 3},
+    'F': {'C': 4, 'G': 3},
+    'G': {'D': 4, 'E': 3, 'F': 3},
+}
+
+# Straight-line (Euclidean) na distansya mula sa node papunta sa goal.
+def heuristic(node, goal):
+    x1, y1 = positions[node]
+    x2, y2 = positions[goal]
+    return math.hypot(x2 - x1, y2 - y1)
+
+def a_star(graph, start, goal):
+    counter = 0                                   
+    open_set = [(heuristic(start, goal), counter, start)]   
+    g_score = {start: 0}                          
+    came_from = {}                               
+    closed = set()                                
+    expanded = 0
+
+    while open_set:
+        f, _, current = heapq.heappop(open_set)   # node with the lowest f(n)
+
+        if current in closed:
+            continue
+        closed.add(current)
+        expanded += 1
+
+        if current == goal:                       # goal reached: rebuild the path
+            path = [current]
+            while current in came_from:
+                current = came_from[current]
+                path.append(current)
+            return path[::-1], g_score[goal], expanded
+
+        for neighbor, cost in graph[current].items():
+            new_g = g_score[current] + cost       # g(n)
+            if neighbor not in g_score or new_g < g_score[neighbor]:
+                g_score[neighbor] = new_g
+                came_from[neighbor] = current
+                counter += 1
+                f_score = new_g + heuristic(neighbor, goal)   # f(n) = g(n) + h(n)
+                heapq.heappush(open_set, (f_score, counter, neighbor))
+
+    return None, float('inf'), expanded           # no path exists
+
+
+start, goal = 'A', 'G'
+path, cost, expanded = a_star(graph, start, goal)
+
+print("Shortest path :", " -> ".join(path))
+print("Total cost    :", cost)
+print("Nodes expanded:", expanded)
